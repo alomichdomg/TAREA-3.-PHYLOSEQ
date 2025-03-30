@@ -32,14 +32,10 @@ otu.rarecurve = rarecurve(otu_rare, step = 10000, col = rainbow(length(otu_rare)
   dev.off()
 
 #################################################################################
-  Diversidad alfa (α
-  )
-Calcula y grafica los siguientes índices de diversidad alfa:
-  
-  Observed (Riqueza)
-Shannon
-Simpson
-Usa plot_richness() de phyloseq.
-
-¿Qué interpretas de estas gráficas?
-  ¿Hay diferencias notorias entre grupos?
+#3.-Diversidad alfa (α)
+#Calcula y grafica  #Usa plot_richness() de phyloseq. 
+  #los siguientes índices de diversidad alfa:
+  #Observed (Riqueza)
+  #Shannon
+  #Simpson
+ 

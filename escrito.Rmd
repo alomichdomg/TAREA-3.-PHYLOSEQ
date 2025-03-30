@@ -1,0 +1,51 @@
+---
+title: "PHYLSOSEQ TAREA"
+author: "Dominguez Alondra."
+date: "2025-03-30"
+output: html_document
+---
+
+# **TAREA PHYLOSEQ**
+
+### **1.- Cargar los datos** 
+
+```{r}
+#1.- Cargar los datos.
+data("dietswap", package = "microbiome")
+datos_ps <- dietswap
+datos_ps
+
+```
+
+**¿Cuántas muestras y taxones contiene el objeto?**\
+130 taxones con 222 muestras que analizaron con 8 variables.
+
+**¿Qué variables están disponibles en los metadatos de las muestras?**
+
+-   Otu_table: con las abundancias de los taxones en las muestras.
+
+-   Sample_data: las variables registradas.
+
+-   Tax_table: Datos con la taxonomia.
+
+### **2.- Curvas de rarefraccion**
+
+**¿Qué indican estas curvas?**
+
+**¿Hay muestras que deberían descartarse por bajo conteo?**
+
+```{r}
+otu_rare <- otu_table(datos_ps) 
+otu_rare <- as.data.frame(t(otu_rare)) 
+sample_names <- rownames(otu_rare) 
+
+otu.rarecurve = rarecurve(otu_rare, step = 10000, col = rainbow(length(otu_rare)))
+```
+
+### 3.- **Diversidad alfa.**  
+**¿Qué interpretas de estas gráficas?**  
+
+
+**¿Hay diferencias notorias entre grupos?**  
+
+
