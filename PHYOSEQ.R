@@ -340,8 +340,7 @@ head(sample_data(data_gp))
 #       engine = "monoMDS")->objeto_mds
 #mi computadora no pudo cargar este archivo para realizar el stressplot :/
 
-#stressplot(object, dis, pch, p.col = "blue", l.col = "red", 
-#         lwd = 2, ...) 
+#stressplot(objeto_mds)
 
 #REFERENCIA:https://search.r-project.org/CRAN/refmans/vegan/html/goodness.metaMDS.html
 
