@@ -112,6 +112,19 @@ plot(plot_2)
     Parecen seguir una distribucion logaritmica.
 
 ```{r message=FALSE, warning=FALSE}
+# PASA LOS DATOS DEL TAXA EN PORCENTAJE:
+datos_modificados <- transform_sample_counts(datos_ps, function(x) 1e+02 * x/sum(x))
+#LO  MANIPULA PARA GGPLOT
+clusterData <- psmelt(datos_modificados) #psmelt:Melt phyloseq data object into large data.frame
+
+clusterData <- filter(clusterData,Abundance > 0)
+
+tax_table(datos_ps) #Phylum:
+clusterAgg <- aggregate(Abundance ~ OTU + Phylum, data=clusterData, mean)
+
+clusterAgg <- clusterAgg[order(-clusterAgg$Abundance),][1:100,]
+
+
 ggplot(clusterAgg,aes(x=reorder(OTU,-Abundance),y=Abundance)) +
   geom_point(aes(color=Phylum),size=3) + 
   theme(axis.ticks = element_blank(), axis.text.x = element_blank()) +
@@ -149,8 +162,6 @@ data_gp <- GlobalPatterns
 #Filtrar taxa con menos de 5 lecturas en al menos 20% de las muestras
 datos_gp_1 <- filter_taxa(data_gp, function(x) sum(x > 5) > (0.2 * length(x)), TRUE)
 
-#Aglomerar a nivel de Familia
-View(tax_table(data_gp))
   #Family
 rank_names(data_gp)
 filtrado_gp<- tax_glom(data_gp, taxrank= "Family", NArm=TRUE, bad_empty=c(NA, "", " ", "\t"))
@@ -200,7 +211,7 @@ clusterData_gp <- filter(clusterData_gp,Abundance > 0)
 
 #CALCULA LA MEDIA DE LSO TAXONES (OTU) Y LOS PHYLUM
 # this is where the mean is calculated and the taxa to display is chosen
-tax_table(data_gp) #Phylum:
+
 clusterAgg_pg <- aggregate(Abundance ~ OTU + Phylum, data=clusterData_gp, mean)
 
 #Ordena las abunancias, aqui solo toma las 100 más abundantes.

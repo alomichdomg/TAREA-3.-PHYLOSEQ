@@ -335,8 +335,10 @@ otu_matriz <- as.matrix(otu_table(data_gp))
 otu_matriz <- otu_matriz[rowSums(otu_matriz) > 0, ]#quitar todos los 0, solo mayores
 distancia_otu <- vegdist(otu_matriz, method = "bray") #matriz de distancia.
 head(sample_data(data_gp))
+
 #metaMDS(otu_matriz, distance = "bray", k = 2, try = 2, trymax = 5, 
 #       engine = "monoMDS")->objeto_mds
+#mi computadora no pudo cargar este archivo para realizar el stressplot :/
 
 #stressplot(object, dis, pch, p.col = "blue", l.col = "red", 
 #         lwd = 2, ...) 
