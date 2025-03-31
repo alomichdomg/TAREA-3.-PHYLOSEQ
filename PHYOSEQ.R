@@ -333,11 +333,21 @@ dev.off()
 #stressplot(object, dis, pch, p.col = "blue", l.col = "red", lwd = 2, ...) 
 otu_matriz <- as.matrix(otu_table(data_gp))
 otu_matriz <- otu_matriz[rowSums(otu_matriz) > 0, ]#quitar todos los 0, solo mayores
+distancia_otu <- vegdist(otu_matriz, method = "bray") #matriz de distancia.
+head(sample_data(data_gp))
+#metaMDS(otu_matriz, distance = "bray", k = 2, try = 2, trymax = 5, 
+#       engine = "monoMDS")->objeto_mds
 
-metaMDS(otu_matriz, distance = "bray", k = 2, try = 20, trymax = 20, 
-        engine = "monoMDS")
-
-stressplot(object, dis, pch, p.col = "blue", l.col = "red", 
-           lwd = 2, ...) 
+#stressplot(object, dis, pch, p.col = "blue", l.col = "red", 
+#         lwd = 2, ...) 
 
 #REFERENCIA:https://search.r-project.org/CRAN/refmans/vegan/html/goodness.metaMDS.html
+
+metadata <- as(sample_data(filtrado_solo_gp_2), "data.frame")
+
+adonis2(distance(filtrado_solo_gp_2, method="bray") ~ SampleType, data = metadata)
+
+#REFERENCIA:https://github.com/joey711/phyloseq/issues/689
+
+
+
