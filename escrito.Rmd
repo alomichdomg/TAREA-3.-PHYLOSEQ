@@ -303,3 +303,5 @@ adonis2(distance(filtrado_solo_gp_2, method="bray") ~ SampleType, data = metadat
     Bacteroides, firmicutes y actinobacteria son los phylum que se encuentran en mayor abundancia, mientras que proteobacteria es el phylum que menor abundancia tiene.
 
 4.  **¿Qué phyla son dominantes en cada ambiente y qué implicaciones ecológicas sugieren?**
+
+    Actinobacteria, Bacteroidetes y Verrucomicrobia implica que cada ambiente tiene phylum representativos y caracteristicos, que basado en el ambiente en el que estan indica que tipo de phylum tendra, si la abundancia de estos phylum disminuye puede indicar problemas en el sistema, como perturbaciones, que afecten el balance del ecosistema.
