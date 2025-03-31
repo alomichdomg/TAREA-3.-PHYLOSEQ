@@ -7,6 +7,15 @@ output: html_document
 
 # **TAREA PHYLOSEQ**
 
+```{r message=FALSE, warning=FALSE}
+library(phyloseq)
+library(microbiome)
+library(ggplot2)
+library(vegan)
+library(dplyr)
+library(data.table)
+```
+
 ### **1.- Cargar los datos** 
 
 ```{r}
@@ -17,10 +26,10 @@ datos_ps
 
 ```
 
-**¿Cuántas muestras y taxones contiene el objeto?**\
-130 taxones con 222 muestras que analizaron con 8 variables.
+1.  **¿Cuántas muestras y taxones contiene el objeto?**\
+    130 taxones con 222 muestras que analizaron con 8 variables.
 
-**¿Qué variables están disponibles en los metadatos de las muestras?**
+2.  **¿Qué variables están disponibles en los metadatos de las muestras?**
 
 -   Otu_table: con las abundancias de los taxones en las muestras.
 
@@ -30,9 +39,13 @@ datos_ps
 
 ### **2.- Curvas de rarefraccion**
 
-**¿Qué indican estas curvas?**
+**1.- ¿Qué indican estas curvas?**
 
-**¿Hay muestras que deberían descartarse por bajo conteo?**
+Nos indican si la muestra que se tomo se hacer a la riqueza total de un sitio, es la representacion grafica de individuos muestreados al azar y si son representativos del sitio del que se tomaron.
+
+**2.- ¿Hay muestras que deberían descartarse por bajo conteo?**
+
+Si las muestras con bajo conteo se forman una meseta en la grafica, no se deben de quitar ya que indican que las muestras tomadas son representativas del sitio, si no forman una meseta y solo es una pendiente se recomienda quitar esas muestras debido a que faltan más muestras.
 
 ```{r}
 otu_rare <- otu_table(datos_ps) 
@@ -42,10 +55,189 @@ sample_names <- rownames(otu_rare)
 otu.rarecurve = rarecurve(otu_rare, step = 10000, col = rainbow(length(otu_rare)))
 ```
 
-### 3.- **Diversidad alfa.**  
-**¿Qué interpretas de estas gráficas?**  
+### 3.- **Diversidad alfa.**
+
+1.  **¿Qué interpretas de estas gráficas?**
+
+2.  **¿Hay diferencias notorias entre grupos?**
+
+```{r message=FALSE, warning=FALSE}
+mod_datos_ps <- prune_taxa(taxa_sums(datos_ps) > 1, datos_ps) #eliminar los que no estan.
+
+plot_richness(mod_datos_ps, x = "sample",color = "group", measures= c("Observed", "Shannon", "Simpson"))
 
 
-**¿Hay diferencias notorias entre grupos?**  
+#OBSERVADOS/RIQUEZA
+estimate_richness(datos_ps, measures="Observed")
+#SHANNON:
+estimate_richness(datos_ps, measures= "Shannon")
+#SIMPSON:
+estimate_richness(datos_ps, measures= "Simpson")
+```
 
+### **5.- Diversidad Beta**
 
+1.  **¿Los grupos se separan visiblemente?**
+
+2.  **¿Qué podría estar causando esas diferencias?**
+
+```{r message=FALSE, warning=FALSE}
+pca_datos <- ordinate(datos_ps, method = "PCoA", distance = "bray")
+
+plot_1 <- plot_ordination(datos_ps, pca_datos, color = "group")+
+  geom_point(size=2) + geom_path(size=0.1) + scale_colour_hue(guide = FALSE) 
+plot(plot_1)
+
+plot_2 <- plot_ordination(datos_ps, pca_datos, color = "sample")+ #para ver por muestra
+  geom_point(size=2) + geom_path(size=0.1) + scale_colour_hue(guide = FALSE) 
+plot(plot_2)
+```
+
+### **6.- GRAFICAS RANK-ABUNDANCE**
+
+1.  **¿Qué tan dominada está la comunidad por pocos taxones y cuáles son?**
+
+2.  **¿Qué tipo de distribución parece seguir?**
+
+```{r message=FALSE, warning=FALSE}
+ggplot(clusterAgg,aes(x=reorder(OTU,-Abundance),y=Abundance)) +
+  geom_point(aes(color=Phylum),size=3) + 
+  theme(axis.ticks = element_blank(), axis.text.x = element_blank()) +
+  scale_y_log10() + ggtitle("RANK-ABUNDANCE POR PHYLUM")
+```
+
+### **7.- Gráficas apiladas de abundancia por taxón**
+
+1.  **¿Hay algún phylum que domine?**
+
+2.  **¿Se observan diferencias entre grupos?**
+
+```{r}
+plot_bar(datos_ps, x = "nationality", y = "Abundance", fill ="Phylum") + geom_bar(aes(color=Phylum, fill=Phylum), stat="identity", position="stack")
+
+```
+
+# EJERCICIO 2.
+
+**Cargar los datos.**
+
+```{r}
+#GlobalPatterns.
+data("GlobalPatterns")
+data_gp <- GlobalPatterns
+```
+
+**Procesamiento de los datos.**
+
+```{r message=FALSE, warning=FALSE}
+#Filtrar taxa con menos de 5 lecturas en al menos 20% de las muestras
+datos_gp_1 <- filter_taxa(data_gp, function(x) sum(x > 5) > (0.2 * length(x)), TRUE)
+
+#Aglomerar a nivel de Familia
+View(tax_table(data_gp))
+  #Family
+rank_names(data_gp)
+filtrado_gp<- tax_glom(data_gp, taxrank= "Family", NArm=TRUE, bad_empty=c(NA, "", " ", "\t"))
+
+#Transformar a abundancias relativas (%)
+relativos_gp <- transform_sample_counts(filtrado_gp, function(x) x / sum(x))
+class(relativos_gp)
+#Subset para incluir solo muestras de: Soil, Feces, Skin
+filtrado_solo_gp <- subset_samples(relativos_gp, SampleType %in% c("Soil", "Feces", "Skin"))
+filtrado_solo_gp
+
+#FILTRADO SIN ABUNDANCIAS RELATIVAS
+filtrado_solo_gp_2 <- subset_samples(filtrado_gp, SampleType %in% c("Soil", "Feces", "Skin"))
+filtrado_solo_gp_2 #NO EN ABUNDANCIAS REALTIVAS.
+```
+
+**Diversidad alfa:**
+
+```{r}
+alpha_div <- estimate_richness(filtrado_solo_gp_2, measures = c("Shannon","Simpson", "Observed"))
+alpha_div
+```
+
+**Vizualizacion de los datos.**
+
+```{r message=FALSE, warning=FALSE}
+plot_richness(filtrado_solo_gp_2, x = "sample",color = "SampleType", measures= "Observed") + 
+  geom_boxplot()
+
+plot_richness(filtrado_solo_gp_2, x = "sample",color = "SampleType", measures= "Shannon")+ 
+  geom_boxplot()
+
+plot_richness(filtrado_solo_gp_2, x = "sample",color = "SampleType", measures= "Simpson")+ 
+  geom_boxplot()
+
+```
+
+**Curvas de Rank-abundance:**
+
+```{r}
+# PASA LOS DATOS DEL TAXA EN PORCENTAJE:
+datos_modificados_gp <- transform_sample_counts(data_gp, function(x) 1e+02 * x/sum(x))
+clusterData_gp <- psmelt(datos_modificados_gp) #psmelt:Melt phyloseq data object into large data.frame
+
+#QUITA LAS QUE NO TIENEN=0
+clusterData_gp <- filter(clusterData_gp,Abundance > 0)
+
+#CALCULA LA MEDIA DE LSO TAXONES (OTU) Y LOS PHYLUM
+# this is where the mean is calculated and the taxa to display is chosen
+tax_table(data_gp) #Phylum:
+clusterAgg_pg <- aggregate(Abundance ~ OTU + Phylum, data=clusterData_gp, mean)
+
+#Ordena las abunancias, aqui solo toma las 100 más abundantes.
+# filtering and picking the number to display
+clusterAgg_pg <- clusterAgg_pg[order(-clusterAgg_pg$Abundance),][1:100,]
+```
+
+**Graficas:**
+
+```{r}
+ggplot(clusterAgg_pg,aes(x=reorder(OTU,-Abundance),y=Abundance)) +
+  geom_point(aes(color=Phylum),size=3) + 
+  geom_line(aes(group = 1), size = 0.5, color="red")+
+theme(axis.ticks = element_blank(), axis.text.x = element_blank()) +
+  scale_y_log10() + ggtitle("RANK-ABUNDANCE.")
+```
+
+**Perfil taxonomico:**
+
+```{r}
+agrupados_gp_1 <-merge_samples(data_gp, "SampleType")
+
+sample_data(agrupados_gp_1)$SampleType = factor(sample_names(agrupados_gp_1))
+agrupados_gp_2 = transform_sample_counts(agrupados_gp_1, function(x) 100 * x/sum(x))
+
+sample.variables(data_gp)
+datos_modificados_gp <- transform_sample_counts(data_gp, function(x) 1e+02 * x/sum(x))
+clusterData_gp <- psmelt(datos_modificados_gp) #psmelt:Melt phyloseq data object into large data.frame
+
+abundancia_mayores <- clusterData_gp %>% group_by(Phylum) %>%
+  summarise(abundancia_promedio = mean(Abundance)) %>%
+  arrange(desc(abundancia_promedio)) 
+
+abundantes_5 <-abundancia_mayores[1:5, ]
+
+abundantes_5_filtrado <- clusterData_gp %>% filter(Phylum %in% abundantes_5$Phylum)
+```
+
+**Grafica:**
+
+```{r}
+ggplot(abundantes_5_filtrado, aes(x = SampleType, y = Abundance, fill = Phylum)) + 
+  geom_bar(aes(color = Phylum, fill = Phylum), stat = "identity", position = "stack") +
+  ggtitle("Agrupados 5") +theme_bw() +
+  facet_wrap(~ Phylum)
+```
+
+### **Preguntas de interpretacion:**
+
+1.  **¿Qué ambiente muestra mayor diversidad alfa? ¿A qué factores podría deberse?**
+
+2.  **¿Qué se observa en la ordenación PCoA respecto a similitudes entre muestras?**
+
+3.  **¿Qué patrón de dominancia taxonómica muestran las curvas de rango-abundancia?**
+
+4.  **¿Qué phyla son dominantes en cada ambiente y qué implicaciones ecológicas sugieren?**
