@@ -327,6 +327,17 @@ pdf("03_OUT/PLOT/DIVERSIDAD.BETA.GLOBAL.PATTERNS.pdf", height = 8, width = 10)
   plot(plot_1_gp)
 dev.off()
 #REFERENCIA:https://r-charts.com/es/correlacion/grafico-dispersion-elipses-ggplot2/
+# ## S3 method for class 'metaMDS'
+#goodness(object, dis, ...)
+## Default S3 method:
+#stressplot(object, dis, pch, p.col = "blue", l.col = "red", lwd = 2, ...) 
+otu_matriz <- as.matrix(otu_table(data_gp))
+otu_matriz <- otu_matriz[rowSums(otu_matriz) > 0, ]#quitar todos los 0, solo mayores
 
+metaMDS(otu_matriz, distance = "bray", k = 2, try = 20, trymax = 20, 
+        engine = "monoMDS")
 
+stressplot(object, dis, pch, p.col = "blue", l.col = "red", 
+           lwd = 2, ...) 
 
+#REFERENCIA:https://search.r-project.org/CRAN/refmans/vegan/html/goodness.metaMDS.html

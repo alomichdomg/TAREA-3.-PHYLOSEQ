@@ -59,7 +59,11 @@ otu.rarecurve = rarecurve(otu_rare, step = 10000, col = rainbow(length(otu_rare)
 
 1.  **¿Qué interpretas de estas gráficas?**
 
+    Que en la grafica de los valores de simpson se observa que tienen valores altos indicando que hay dominancia de ciertas especies, los valores de Shannon tambien son mayores "realtivos", pero como se desconoce el maximo valor se puede interpretar en las graficas que hay ciertas especies que dominan, pero no es dominancia total ni totalmente equidad en el sistema.
+
 2.  **¿Hay diferencias notorias entre grupos?**
+
+    No se observan diferencias notorias entre los grupos, la unica diferencia notorias es que mientras los grupos DI y HE estan dispersos a lo largo de la grafica el grupo ED esta más concentrado en las graficas.
 
 ```{r message=FALSE, warning=FALSE}
 mod_datos_ps <- prune_taxa(taxa_sums(datos_ps) > 1, datos_ps) #eliminar los que no estan.
@@ -79,7 +83,11 @@ estimate_richness(datos_ps, measures= "Simpson")
 
 1.  **¿Los grupos se separan visiblemente?**
 
+    No hay una separacion visible de los grupos.
+
 2.  **¿Qué podría estar causando esas diferencias?**
+
+    Que las variables seleccionadas no explican el total de la variacion.
 
 ```{r message=FALSE, warning=FALSE}
 pca_datos <- ordinate(datos_ps, method = "PCoA", distance = "bray")
@@ -97,7 +105,11 @@ plot(plot_2)
 
 1.  **¿Qué tan dominada está la comunidad por pocos taxones y cuáles son?**
 
+    Si por dos; Firmicutes y Bacteroides.
+
 2.  **¿Qué tipo de distribución parece seguir?**
+
+    Parecen seguir una distribucion logaritmica.
 
 ```{r message=FALSE, warning=FALSE}
 ggplot(clusterAgg,aes(x=reorder(OTU,-Abundance),y=Abundance)) +
@@ -110,7 +122,11 @@ ggplot(clusterAgg,aes(x=reorder(OTU,-Abundance),y=Abundance)) +
 
 1.  **¿Hay algún phylum que domine?**
 
+    Dos phylum; Bacteroides y Firmicutes.
+
 2.  **¿Se observan diferencias entre grupos?**
+
+    No, ambos grupos tienen a los phylum Bacteroides y Firmicutes como dominantes y los otros phylum presentes estan en poca abundancia comparada a los dos primeros.
 
 ```{r}
 plot_bar(datos_ps, x = "nationality", y = "Abundance", fill ="Phylum") + geom_bar(aes(color=Phylum, fill=Phylum), stat="identity", position="stack")
